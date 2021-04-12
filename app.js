@@ -55,4 +55,62 @@ app.get('/', (req,res) => {
   .catch(err => res.status(400).json({dbError: 'db error'}));
 })
 
+app.put('/getPlayer', (req,res) => {
+  var myArray = req.body.name
+  var sql = format("SELECT * FROM public.players WHERE name IN (%L)", myArray);
+  client
+    .query(sql)
+    .then(data => {
+      if(data.rows.length){
+        res.json(data.rows);
+        socketIO.sockets.emit("FromgetPlayerAPI", data.rows);
+      } else {
+        res.json({dataExists: 'false'})
+      }
+    })
+    .catch(err => res.status(400).json({dbError: 'db error'}));
+  })
+
+  app.put('/updateCount', (req, res) => {
+    console.log(req.body);
+    const { id, likeness } = req.body
+    client.query(`UPDATE public.players SET likeness =${likeness} WHERE id = ${id};`).then(data => {
+      res.json({data: 'updated'});
+    })
+    .catch(err => res.status(400).json({dbError: 'db error'}));
+  })
+
+  app.put('/updateStrength', (req, res) => {
+    console.log(req.body);
+    const { id, strength } = req.body
+    client.query(`UPDATE public.players SET strength =${strength} WHERE id = ${id};`).then(data => {
+      res.json({data: 'updated'});
+    })
+    .catch(err => res.status(400).json({dbError: 'db error'}));
+  })
+
+  app.put('/updateWit', (req, res) => {
+    console.log(req.body);
+    const { id, wit } = req.body
+    client.query(`UPDATE public.players SET wit =${wit} WHERE id = ${id};`).then(data => {
+      res.json({data: 'updated'});
+    })
+    .catch(err => res.status(400).json({dbError: 'db error'}));
+  })
+
+  app.put('/updateTribe', (req, res) => {
+    var myArray = req.body.id
+    var tribe = req.body.tribe
+    var sql = format("UPDATE public.players SET tribe = %L WHERE id IN (%L)", tribe, myArray);
+    client
+      .query(sql)
+      .then(data => {
+        res.json({data: 'updated'});
+        console.log(data.rows)
+      })
+      .catch(e => {
+        console.error(e.stack)
+      })
+  })
+
 http.listen(port, () => console.log(`BACK_END_SERVICE_PORT: ${port}`));
