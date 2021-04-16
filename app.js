@@ -36,10 +36,11 @@ client.connect();
 
 socketIO.on('connection', function(socket) {
     console.log('Client connected.');
-    socketIO.on('disconnect', function() {
+    socket.on('disconnect', function() {
         console.log('Client disconnected.');
     });
 });
+
 
 app.use(cors());
 
@@ -71,8 +72,23 @@ app.put('/getPlayer', (req,res) => {
     .catch(err => res.status(400).json({dbError: 'db error'}));
   })
 
+  app.put('/getTribe', (req,res) => {
+    var myArray = req.body.tribe
+    var sql = format("SELECT * FROM public.players WHERE tribe IN (%L)", myArray);
+    client
+      .query(sql)
+      .then(data => {
+        if(data.rows.length){
+          res.json(data.rows);
+          socketIO.sockets.emit("FromgetTribeAPI", data.rows);
+        } else {
+          res.json({dataExists: 'false'})
+        }
+      })
+      .catch(err => res.status(400).json({dbError: 'db error'}));
+    })
+
   app.put('/updateCount', (req, res) => {
-    console.log(req.body);
     const { id, likeness } = req.body
     client.query(`UPDATE public.players SET likeness =${likeness} WHERE id = ${id};`).then(data => {
       res.json({data: 'updated'});
@@ -81,7 +97,6 @@ app.put('/getPlayer', (req,res) => {
   })
 
   app.put('/updateStrength', (req, res) => {
-    console.log(req.body);
     const { id, strength } = req.body
     client.query(`UPDATE public.players SET strength =${strength} WHERE id = ${id};`).then(data => {
       res.json({data: 'updated'});
@@ -89,8 +104,15 @@ app.put('/getPlayer', (req,res) => {
     .catch(err => res.status(400).json({dbError: 'db error'}));
   })
 
+  app.put('/updateChallenge', (req, res) => {
+    const { id, challenge } = req.body
+    client.query(`UPDATE public.players SET join_game =${challenge} WHERE id = ${id};`).then(data => {
+      res.json({data: 'updated'});
+    })
+    .catch(err => res.status(400).json({dbError: 'db error'}));
+  })
+
   app.put('/updateWit', (req, res) => {
-    console.log(req.body);
     const { id, wit } = req.body
     client.query(`UPDATE public.players SET wit =${wit} WHERE id = ${id};`).then(data => {
       res.json({data: 'updated'});
@@ -106,7 +128,6 @@ app.put('/getPlayer', (req,res) => {
       .query(sql)
       .then(data => {
         res.json({data: 'updated'});
-        console.log(data.rows)
       })
       .catch(e => {
         console.error(e.stack)
