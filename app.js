@@ -56,6 +56,22 @@ app.get('/', (req,res) => {
   .catch(err => res.status(400).json({dbError: 'db error'}));
 })
 
+app.put('/getEvent', (req,res) => {
+  var myArray = req.body.id
+  var sql = format("SELECT * FROM public.event_outcome WHERE id IN (%L)", myArray);
+  client
+    .query(sql)
+    .then(data => {
+      if(data.rows.length){
+        res.json(data.rows);
+        socketIO.sockets.emit("FromGetEvent", data.rows);
+      } else {
+        res.json({dataExists: 'false'})
+      }
+    })
+    .catch(err => res.status(400).json({dbError: 'db error'}));
+  })
+
 app.put('/getPlayer', (req,res) => {
   var myArray = req.body.name
   var sql = format("SELECT * FROM public.players WHERE name IN (%L)", myArray);
