@@ -56,6 +56,50 @@ app.get('/', (req,res) => {
   .catch(err => res.status(400).json({dbError: 'db error'}));
 })
 
+app.put('/updatePlayerScore', (req,res) => {
+  const { id, playerScore } = req.body
+  client.query(`UPDATE public.players SET playerscore =${playerScore} WHERE id = ${id};`).then(data => {
+    res.json({data: 'updated'});
+  })
+  .catch(err => res.status(400).json({dbError: 'db error'}));
+})
+
+app.get('/gameData', (req,res) => {
+  client.query('SELECT * FROM public.game_data ORDER BY id ASC;').then(data => {
+    if(data.rows.length){
+      res.json(data.rows);
+      socketIO.sockets.emit("GameData", data.rows);
+    } else {
+      res.json({dataExists: 'false'})
+    }
+  })
+  .catch(err => res.status(400).json({dbError: 'db error'}));
+})
+
+app.put('/updateRoundData', (req,res) => {
+  const { id, roundData } = req.body
+  client.query(`UPDATE public.game_data SET round_data =${roundData} WHERE id = ${id};`).then(data => {
+    res.json({data: 'updated'});
+  })
+  .catch(err => res.status(400).json({dbError: 'db error'}));
+})
+
+app.put('/updateScoreData', (req,res) => {
+  const { id, tribe1, tribe2, tribe3 } = req.body
+  client.query(`UPDATE public.game_data SET tribe1score=${tribe1}, tribe2score=${tribe2}, tribe3score=${tribe3} WHERE id = ${id};`).then(data => {
+    res.json({data: 'updated'});
+  })
+  .catch(err => res.status(400).json({dbError: 'db error'}));
+})
+
+app.put('/updateGameData', (req,res) => {
+  const { id, gameData } = req.body
+  client.query(`UPDATE public.game_data SET game_data =${gameData} WHERE id = ${id};`).then(data => {
+    res.json({data: 'updated'});
+  })
+  .catch(err => res.status(400).json({dbError: 'db error'}));
+})
+
 app.put('/getEvent', (req,res) => {
   var myArray = req.body.id
   var sql = format("SELECT * FROM public.event_outcome WHERE id IN (%L)", myArray);
