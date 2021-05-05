@@ -84,6 +84,22 @@ app.put('/updateRoundData', (req,res) => {
   .catch(err => res.status(400).json({dbError: 'db error'}));
 })
 
+app.put('/updateIdolCount', (req,res) => {
+  const { id, idolCount } = req.body
+  client.query(`UPDATE public.players SET idol_count =${idolCount} WHERE id = ${id};`).then(data => {
+    res.json({data: 'updated'});
+  })
+  .catch(err => res.status(400).json({dbError: 'db error'}));
+})
+
+app.put('/updateImmunity', (req,res) => {
+  const { id, immunity } = req.body
+  client.query(`UPDATE public.players SET immunity =${immunity} WHERE id = ${id};`).then(data => {
+    res.json({data: 'updated'});
+  })
+  .catch(err => res.status(400).json({dbError: 'db error'}));
+})
+
 app.put('/updateScoreData', (req,res) => {
   const { id, tribe1, tribe2, tribe3 } = req.body
   client.query(`UPDATE public.game_data SET tribe1score=${tribe1}, tribe2score=${tribe2}, tribe3score=${tribe3} WHERE id = ${id};`).then(data => {
