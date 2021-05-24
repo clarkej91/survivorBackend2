@@ -56,9 +56,28 @@ app.get('/', (req,res) => {
   .catch(err => res.status(400).json({dbError: 'db error'}));
 })
 
+app.get('/events', (req,res) => {
+  client.query('SELECT * FROM public.event_outcome ORDER BY id ASC;').then(data => {
+    if(data.rows.length){
+      res.json(data.rows);
+    } else {
+      res.json({dataExists: 'false'})
+    }
+  })
+  .catch(err => res.status(400).json({dbError: 'db error'}));
+})
+
 app.put('/updatePlayerScore', (req,res) => {
-  const { id, playerScore } = req.body
-  client.query(`UPDATE public.players SET playerscore =${playerScore} WHERE id = ${id};`).then(data => {
+  const { name, playerScore, tribal } = req.body
+  client.query(`UPDATE public.players SET playerscore =${playerScore}, tribal =${tribal} WHERE name = '${name}';`).then(data => {
+    res.json({data: 'updated'});
+  })
+  .catch(err => res.status(400).json({dbError: 'db error'}));
+})
+
+app.put('/setTribalToFalse', (req,res) => {
+  const { name, playerScore, tribal } = req.body
+  client.query(`UPDATE players SET tribal = false`).then(data => {
     res.json({data: 'updated'});
   })
   .catch(err => res.status(400).json({dbError: 'db error'}));
@@ -72,6 +91,14 @@ app.get('/gameData', (req,res) => {
     } else {
       res.json({dataExists: 'false'})
     }
+  })
+  .catch(err => res.status(400).json({dbError: 'db error'}));
+})
+
+app.put('/updateChallengeRatio', (req,res) => {
+  const { num } = req.body
+  client.query(`UPDATE public.game_data SET challenge_ratio = ${num}`).then(data => {
+    res.json({data: 'updated'});
   })
   .catch(err => res.status(400).json({dbError: 'db error'}));
 })
