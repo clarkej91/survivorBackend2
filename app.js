@@ -95,6 +95,14 @@ app.get('/gameData', (req,res) => {
   .catch(err => res.status(400).json({dbError: 'db error'}));
 })
 
+app.put('/updateTribeNumber', (req,res) => {
+  const { name, tribeNumber } = req.body
+  client.query(`UPDATE public.players SET tribe_number =${tribeNumber} WHERE name = '${name}';`).then(data => {
+    res.json({data: 'updated'});
+  })
+  .catch(err => res.status(400).json({dbError: 'db error'}));
+})
+
 app.put('/updateChallengeRatio', (req,res) => {
   const { num } = req.body
   client.query(`UPDATE public.game_data SET challenge_ratio = ${num}`).then(data => {
