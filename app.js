@@ -36,6 +36,9 @@ client.connect();
 
 socketIO.on('connection', function(socket) {
     console.log('Client connected.');
+    // socket.on('sendMessage', (data) => {
+    //   io.emit('sendMessage', data);
+    // });
     socket.on('disconnect', function() {
         console.log('Client disconnected.');
     });
@@ -78,6 +81,14 @@ app.put('/updatePlayerScore', (req,res) => {
 app.put('/setTribalToFalse', (req,res) => {
   const { name, playerScore, tribal } = req.body
   client.query(`UPDATE players SET tribal = false`).then(data => {
+    res.json({data: 'updated'});
+  })
+  .catch(err => res.status(400).json({dbError: 'db error'}));
+})
+
+app.put('/changeShowData', (req,res) => {
+  const { showData } = req.body
+  client.query(`UPDATE public.game_data SET showdata = ${showData}`).then(data => {
     res.json({data: 'updated'});
   })
   .catch(err => res.status(400).json({dbError: 'db error'}));
