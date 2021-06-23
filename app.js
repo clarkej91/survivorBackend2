@@ -36,9 +36,18 @@ client.connect();
 
 socketIO.on('connection', function(socket) {
     console.log('Client connected.');
-    // socket.on('sendMessage', (data) => {
-    //   io.emit('sendMessage', data);
-    // });
+    socket.on('sendMessage', (data) => {
+      socketIO.emit('getMessage', data);
+      console.log(data);
+    });
+    socket.on('sendRatioVal', (data) => {
+      socketIO.emit('getRatioVal', data);
+      console.log(data);
+    });
+    socket.on('sendIdolMessage', (data) => {
+      socketIO.emit('getIdolMessage', data);
+      console.log(data);
+    });
     socket.on('disconnect', function() {
         console.log('Client disconnected.');
     });
@@ -60,7 +69,7 @@ app.get('/', (req,res) => {
 })
 
 app.get('/events', (req,res) => {
-  client.query('SELECT * FROM public.event_outcome ORDER BY id ASC;').then(data => {
+  client.query('SELECT * FROM public.event_outcome ORDER BY id DESC;').then(data => {
     if(data.rows.length){
       res.json(data.rows);
     } else {
@@ -105,6 +114,8 @@ app.get('/gameData', (req,res) => {
   })
   .catch(err => res.status(400).json({dbError: 'db error'}));
 })
+
+//PUT ROUTES
 
 app.put('/updateTribeNumber', (req,res) => {
   const { name, tribeNumber } = req.body
@@ -255,5 +266,25 @@ app.put('/getPlayer', (req,res) => {
         console.error(e.stack)
       })
   })
+
+//POST ROUTES
+
+app.post('/addEvent', (req, res) => {
+  const { events } = req.body
+  client.query(`INSERT INTO public.event_outcome (events)
+VALUES ('${events}');`).then(data => {
+    res.json({data: 'updated'});
+  })
+  .catch(err => res.status(400).json({dbError: 'db error'}));
+})
+
+//DELETE ROUTES
+app.delete('/deleteEvent', (req,res) => {
+  const { id } = req.body
+  client.query(`DELETE FROM public.event_outcome WHERE id=${id};`).then(data => {
+      res.json({data: 'deleted'});
+  })
+  .catch(err => res.status(400).json({dbError: 'db error'}));
+})
 
 http.listen(port, () => console.log(`BACK_END_SERVICE_PORT: ${port}`));
