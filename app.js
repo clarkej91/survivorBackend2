@@ -48,6 +48,22 @@ socketIO.on('connection', function(socket) {
       socketIO.emit('getIdolMessage', data);
       console.log(data);
     });
+    socket.on('sendRoundMessage', (data) => {
+      socketIO.emit('getRoundMessage', data);
+      console.log(data);
+    });
+    socket.on('sendTribalVotes', (data) => {
+      socketIO.emit('getTribalVotes', data);
+      console.log(data);
+    });
+    socket.on('sendVote', (data) => {
+      socketIO.emit('getVote', data);
+      console.log(data);
+    });
+    socket.on('sendRevealVote', (data) => {
+      socketIO.emit('getRevealVote', data);
+      console.log(data);
+    });
     socket.on('disconnect', function() {
         console.log('Client disconnected.');
     });
